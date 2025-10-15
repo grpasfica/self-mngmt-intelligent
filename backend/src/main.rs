@@ -8,14 +8,16 @@ use dotenvy::dotenv;
 use std::env;
 
 #[derive(BotCommands, Clone)]
-#[command(rename_rule = "lowercase", description = "Perintah yang tersedia saat ini:")]
+#[command(rename_rule = "lowercase", description = "✨ Perintah yang tersedia saat ini: ✨")]
 enum Command{
-    #[command(description = "Mulai Agent")]
+    #[command(description = "Agent started\n")]
     Start,
-    #[command(description = "Sapaan Agent")]
+    #[command(description = "Agent says Hallo\n")]
     Hallo,
-    #[command(description = "Bantuan")]
+    #[command(description = "Agent helper\n")]
     Help,
+    #[command(description = "Stop Agent\n")]
+    Stop,
 }
 
 #[tokio::main]
@@ -50,6 +52,13 @@ async fn main() {
                             msg.chat.id, 
                             Command::descriptions().to_string()
                         ).await?;
+                    }
+                    Command::Stop => {
+                        bot.send_message(
+                            msg.chat.id,
+                            "Baiklah, sampai jumpa lagi! 👋"
+                        ).await?;
+                        std::process::exit(0);
                     }
                 }
             }
