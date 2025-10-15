@@ -1,0 +1,10 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+dotenvy = "0.15"
+teloxide = "0.17.0"
+teloxide-macros = "0.10.0"
