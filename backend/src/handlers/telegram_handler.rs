@@ -1,10 +1,10 @@
 use axum::{
     extract::{Json, State},
     http::StatusCode,
-    response::IntoResponse,
+    response::{IntoResponse, Response},
 };
 use std::sync::Arc;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use crate::{
     domain::command::{Message, User},
     services::bot_services::TelegramService
@@ -30,11 +30,46 @@ pub struct TelegramUser {
     pub username: Option<String>
 }
 
-// Handler function for Telegram webhook
+// Struktur untuk response body
+#[derive(Serialize)]
+pub struct ApiResponse {
+    pub success: bool,
+    pub message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub data: Option<serde_json::Value>
+}
+
+impl ApiResponse {
+    pub fn success(message: impl Into<String>) -> Self {
+        Self {
+            success: true,
+            message: message.into(),
+            data: None
+        }
+    }
+
+    pub fn success_with_data(message: impl Into<String>, data: serde_json::Value) -> Self {
+        Self {
+            success: true,
+            message: message.into(),
+            data: Some(data)
+        }
+    }
+
+    pub fn error(message: impl Into<String>) -> Self {
+        Self {
+            success: false,
+            message: message.into(),
+            data: None
+        }
+    }
+}
+
+// Handler function dengan response body
 pub async fn telegram_webhook_handler(
     State(bot_services): State<Arc<TelegramService>>,
-    Json(payload): Json<TelegramUpdate>
-) -> impl IntoResponse {
+    Json(payload): Json<TelegramUpdate>,
+) -> Response {
     if let Some(msg) = payload.message {
         let user = msg.from.map(|u| User {
             id: u.id,
@@ -52,8 +87,16 @@ pub async fn telegram_webhook_handler(
 
         bot_services.process_message(message).await;
 
-        StatusCode::OK
+        // Response sukses dengan body
+        (
+            StatusCode::OK,
+            Json(ApiResponse::success("Message processed successfully"))
+        ).into_response()
     } else {
-        StatusCode::BAD_REQUEST
+        // Response gagal dengan body
+        (
+            StatusCode::BAD_REQUEST,
+            Json(ApiResponse::error("Invalid request: message field is missing"))
+        ).into_response()
     }
 }
