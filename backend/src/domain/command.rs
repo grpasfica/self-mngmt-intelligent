@@ -1,14 +1,13 @@
-use teloxide_macros::BotCommands;
+#[derive(Debug)]
+pub struct User {
+    pub id: i64,
+    pub name: String,
+    pub username: Option<String>
+}
 
-#[derive(BotCommands, Clone)]
-#[command(rename_rule = "lowercase", description = "✨ Perintah yang tersedia saat ini: ✨")]
-pub enum Command{
-    #[command(description = "Agent started\n")]
-    Start,
-    #[command(description = "Agent says Hallo\n")]
-    Hallo,
-    #[command(description = "Agent helper\n")]
-    Help,
-    #[command(description = "Stop Agent\n")]
-    Stop,
+#[derive(Debug)]
+pub struct Message {
+    pub id: i64,
+    pub user: Option<User>,
+    pub text: String
 }

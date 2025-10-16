@@ -1,19 +1,13 @@
-use teloxide::{
-    prelude::*,
-    types::Message,
-};
-use crate::handlers::telegram_handler::handle_command;
+#[derive(Clone)]
+pub struct TelegramService;
 
-pub struct BotService;
+impl TelegramService {
+    pub fn new() -> Self {
+        TelegramService
+    }
 
-impl BotService {
-    pub async fn run(bot_token: &str) {
-        let bot = Bot::new(bot_token);
-
-        teloxide::repl(bot, |bot, msg: Message| async move {
-            handle_command(bot, msg).await;
-            respond(())
-        })
-        .await;
+    pub async fn process_message(&self, message: crate::domain::command::Message) {
+        // Contoh: hanya print message
+        println!("Processing message: {:?}", message);
     }
 }
